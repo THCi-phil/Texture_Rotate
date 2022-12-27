@@ -248,7 +248,7 @@ public class Texture_Rotate implements PlugIn {
 			rotated_Texture.run();
 
 			imageWholeField_width_No_Clip.updateAndRepaintWindow();
-      imageWholeField_width_Clipped.updateAndRepaintWindow();
+			imageWholeField_width_Clipped.updateAndRepaintWindow();
 
 			return true;
 		} //end public boolean dialogItemChanged(GenericDialog, AWTEvent )
@@ -321,7 +321,7 @@ public class Texture_Rotate implements PlugIn {
 			//are a bit grainy.
 			//For best performance, you really need this time switcher to be set by a public method called from
 			//the calling watcher routines, so a slow interpolation draw is called directly done
-      //if a rotation hasn't happened for 1/30th of a second
+			//if a rotation hasn't happened for 1/30th of a second
 			//and otherwise the slow switch is called
 			//fastSlowSwitchTimeIncrement= 1.0 / 30.0 ; //assuming it's a 1.0 = 1 second time base unit
 			
@@ -413,7 +413,7 @@ public class Texture_Rotate implements PlugIn {
 		
 		
 		private boolean isOnScreen( double x, double y ) {
-			return (  ( x > 0.0 )&&( x < width_screenExtentsMimic_onFieldImage )
+			return (  ( x > 0.0 )&&( x < width_screenExtentsMimic_onFieldImage  )
 			        &&( y > 0.0 )&&( y < height_screenExtentsMimic_onFieldImage )
 			       );
 		} //end private boolean isOnScreen( double, double )
@@ -421,8 +421,8 @@ public class Texture_Rotate implements PlugIn {
 		
 
 		private void showResultsTableResizeToMinWidthMaxHeight( ResultsTable rt
-				                                                  , String       windowTitle
-				                                                  ) {
+		                                                      , String       windowTitle
+		                                                      ) {
 			//have to .show() it to start with, for there to be a Window object for the methods we need
 			rt.show( windowTitle );
 		
@@ -602,41 +602,41 @@ public class Texture_Rotate implements PlugIn {
 				//will be trivial, and any other order would make the code much harder to understand and maintain.
 				switch (textureAllFourCorners.cornersInImageMap) {
 					case 15 : { // 1111 all four corners are in image (normal case) no need for break test in pixel mapping loop
-										scanFast_fromTopLeftCorner_Xplus_Yplus_NO_BREAK(pixels);
-										}
-										break;
+					          scanFast_fromTopLeftCorner_Xplus_Yplus_NO_BREAK(pixels);
+					          }
+					          break;
 					case 14 : { /* 1110 */  scanFast_fromTopLeftCorner_Xplus_Yplus(pixels);	              }
-										break;
+					          break;
 					case 13 : { /* 1101 */  scanFast_fromTopRightCorner_Xminus_Yplus(pixels);             }
-										break;
+					          break;
 					case 12 : { /* 1100 */  scanFast_fromTopLeftCorner_Yplus_inXplusOuterLoop(pixels);    }
-										break;
+					          break;
 					case 11 : { /* 1011 */  scanFast_fromTopLeftCorner_Xplus_Yplus(pixels);               }
-										break;
+					          break;
 					case 10 : { /* 1010 */  scanFast_fromTopLeftCorner_Xplus_Yplus(pixels);               }
-										break;
+					          break;
 					case  9 : { /* 1001 not feasible do nothing */                                        }
 					          // infeasible unless the texture is wide compared to screen height or high c.f. screen width
-										break;
+					          break;
 					case  8 : { /* 1000 */  onlyTopLeftCornerInImage(pixels);                             }
-										break;
+					          break;
 					case  7 : { /* 0111 */  scanFast_fromTopRightCorner_Xminus_Yplus(pixels);             }
-										break;
+					          break;
 					case  6 : { /* 0110 not feasible do nothing */                                        }
-										// infeasible unless the texture is wide compared to screen height or high c.f. screen width
-										break;
+					          // infeasible unless the texture is wide compared to screen height or high c.f. screen width
+					          break;
 					case  5 : { /* 0101 */  scanFast_fromTopRightCorner_Xminus_Yplus(pixels);             }
-										break;
+					          break;
 					case  4 : { /* 0100 */ 	onlyTopRightCornerInImage(pixels);                            }
-										break;
+					          break;
 					case  3 : { /* 0011 */  scanFast_fromBottomLeftCorner_Yminus_inXplusOuterLoop(pixels);}
-										break;
+					          break;
 					case  2 : { /* 0010 */  onlyBottomLeftCornerInImage(pixels);                          }
-										break;
+					          break;
 					case  1 : { /* 0001 */  onlyBottomRightCornerInImage(pixels);                         }
-										break;
+					          break;
 					case  0 : { /* 0000 */  noCornersOfTextureInimage(pixels);                            }
-										break;
+					          break;
 				} //end switch case
 			} //end private void selectMethodFromPositionTexturemappedToRelativeToScreenBounds(byte[])
 			//------------------------------------------------------------------- -------------------------------------------------
@@ -907,15 +907,13 @@ public class Texture_Rotate implements PlugIn {
 				IJ.log("no corners in image");
 				//an if tree is messy but still the most easily understood way through the logic to select between the 16 cases
 				if(      inputTextureRotationAngle <  90 ) {  // >=  0
-					IJ.log("in first quadrant");
 					if( textureAllFourCorners.pointsStraddleScreenBottomRight_Q13( textureAllFourCorners.topLeftCorner ) ) {
-						IJ.log("straddles screen bottom right");
 						scanFast_fromTopLeftCorner_Xplus_Yplus(pixels);
 					}else{
 						//see drawing page 11 of notes
-						//if staddle bottom left corner is same method as [11xx]
+						//if straddle bottom left corner is same method as [11xx]
 						//if straddle top left corner of image is scanFast_fromTopRightCorner_Xminus_Yplus
-						//if staddle top right corner is scanFast_fromBottomLeftCorner_Yminus_inXplusOuterLoop
+						//if straddle top right corner is scanFast_fromBottomLeftCorner_Yminus_inXplusOuterLoop
 					}
 				//...............................................................................................................
 				}else if( inputTextureRotationAngle < 180 ) { // >= 90
@@ -964,17 +962,17 @@ public class Texture_Rotate implements PlugIn {
 		
 			protected void setCornersXY( ) {
 				topLeftCorner.setXY( real_x0_onScreenMimic
-													 , real_y0_onScreenMimic
-													 );
+				                   , real_y0_onScreenMimic
+				                   );
 				topRightCorner.setXY( real_x0_onScreenMimic + widthTexture * real_x_pixelIncrementWhenTraversingAlongRow
-														, real_y0_onScreenMimic + widthTexture * real_y_pixelIncrementWhenTraversingAlongRow
-														);
+				                    , real_y0_onScreenMimic + widthTexture * real_y_pixelIncrementWhenTraversingAlongRow
+				                    );
 				bottomLeftCorner.setXY( real_x0_onScreenMimic + heightTexture * real_x_pixelIncrementWhenSwitchingToNextRow
-															, real_y0_onScreenMimic + heightTexture * real_y_pixelIncrementWhenSwitchingToNextRow
-															);
+				                      , real_y0_onScreenMimic + heightTexture * real_y_pixelIncrementWhenSwitchingToNextRow
+				                      );
 				bottomRightCorner.setXY( bottomLeftCorner.real_x_onScreenMimic + widthTexture * real_x_pixelIncrementWhenTraversingAlongRow
-															 , bottomLeftCorner.real_y_onScreenMimic + widthTexture * real_y_pixelIncrementWhenTraversingAlongRow
-															 );
+				                       , bottomLeftCorner.real_y_onScreenMimic + widthTexture * real_y_pixelIncrementWhenTraversingAlongRow
+				                       );
 			} //end protected void setCornersXY()
 			//-------------------------------------------------------------------
 			
@@ -986,15 +984,15 @@ public class Texture_Rotate implements PlugIn {
 				bottomRightCorner.setIsCornerOnScreen() ;
 				cornersInImageMap = (topLeftCorner.isWithinScreenBounds    ? 8 : 0 )
 				                  | (topRightCorner.isWithinScreenBounds   ? 4 : 0 )
-			                    | (bottomLeftCorner.isWithinScreenBounds ? 2 : 0 )
+				                  | (bottomLeftCorner.isWithinScreenBounds ? 2 : 0 )
 				                  | (bottomRightCorner.isWithinScreenBounds? 1 : 0 )
 				                  ;
-				//rt_CornerPositions.incrementCounter();
-				//rt_CornerPositions.addValue("topLeft"          , (topLeftCorner.isWithinScreenBounds    ? 8 : 0 ) );
-				//rt_CornerPositions.addValue("topRight"         , (topRightCorner.isWithinScreenBounds   ? 4 : 0 ) );
-				//rt_CornerPositions.addValue("bottomLeft"       , (bottomLeftCorner.isWithinScreenBounds ? 2 : 0 ) );
-				//rt_CornerPositions.addValue("bottomRight"      , (bottomRightCorner.isWithinScreenBounds? 1 : 0 ) );
-				//rt_CornerPositions.addValue("cornersInImageMap", cornersInImageMap                      );
+				rt_CornerPositions.incrementCounter();
+				rt_CornerPositions.addValue("topLeft"          , (topLeftCorner.isWithinScreenBounds    ? 8 : 0 ) );
+				rt_CornerPositions.addValue("topRight"         , (topRightCorner.isWithinScreenBounds   ? 4 : 0 ) );
+				rt_CornerPositions.addValue("bottomLeft"       , (bottomLeftCorner.isWithinScreenBounds ? 2 : 0 ) );
+				rt_CornerPositions.addValue("bottomRight"      , (bottomRightCorner.isWithinScreenBounds? 1 : 0 ) );
+				rt_CornerPositions.addValue("cornersInImageMap", cornersInImageMap                      );
 			} //end protected void setAreCornersOnScreen()
 			//-------------------------------------------------------------------
 			
@@ -1006,13 +1004,11 @@ public class Texture_Rotate implements PlugIn {
 			//-------------------------------------------------------------------
 			
 			
-			//truly return the staddle (c.f. 2 Texture_Corner argument version following)
+			//truly return the saddle (c.f. 2 Texture_Corner argument version following)
 			//but a pain as need multiple versions (or a boolean argument for * or / tan)
 			private boolean pointsStraddleScreenBottomRight_Q13( Texture_Corner tc ) {
 				double Xs = tc.real_x_onScreenMimic - width_screenExtentsMimic_onFieldImage ;
 				double Ys = Xs / Math.tan( Math.toRadians( inputTextureRotationAngle ) );
-				double testDebugForLogWindow = tc.real_y_onScreenMimic + Ys ;
-				IJ.log("Xs = " + Xs + " , Ys = " + Ys + "(tc.real_y_onScreenMimic + Ys)= " + testDebugForLogWindow );
 				return( (Xs > 0)
 				      &&( (tc.real_y_onScreenMimic + Ys) < height_screenExtentsMimic_onFieldImage)
 				      );
@@ -1030,6 +1026,7 @@ public class Texture_Rotate implements PlugIn {
 			//-----------------------------------------------------------------------------------------------------------
 			
 			
+			//only one function, but another if test
 			private boolean pointsStraddleScreenBottomRight( Texture_Corner tc, boolean isTextureRotationAngleInQuadrant1or3 ) {
 				double Xs = tc.real_x_onScreenMimic - width_screenExtentsMimic_onFieldImage ;
 				double Ys;
@@ -1056,8 +1053,6 @@ public class Texture_Rotate implements PlugIn {
 				      );
 			} //end private boolean pointsStraddleScreenBottomRight( Texture_Corner, Texture_Corner )
 			//-----------------------------------------------------------------------------------------------------------		
-		
-		
 		
 		
 		//==================================================================
