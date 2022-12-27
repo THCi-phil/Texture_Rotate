@@ -18,7 +18,7 @@ import ij.gui.DialogListener;
 
 import ij.plugin.PlugIn;
 
-import ij.process.ByteProcessor ;
+import ij.process.ByteProcessor;
 
 import ij.measure.ResultsTable;
 
@@ -404,7 +404,7 @@ public class Texture_Rotate implements PlugIn {
 		
 		private void showResultsTableResizeToMinWidthMaxHeight( ResultsTable rt
 				                                                  , String       windowTitle
-				                                                  );
+				                                                  )
 		{	//have to .show() it to start with, for there to be a Window object for the methods we need
 			rt.show( windowTitle );
 		
@@ -466,7 +466,7 @@ public class Texture_Rotate implements PlugIn {
 			                               + 137             //width of application icon, and min max close buttons
 			                              , columnHeadingsWidth + spacingBetweenColumnHeadings + leftAndRightWindowBorder
 																		);
-			dimension_rw.height = inputDataAndOutputDisplayImages.getMaxAvailableClearScreenHeight();
+			dimension_rw.height = windowPlacement.getMaxAvailableClearScreenHeight();
 			rw.setSize( dimension_rw );
 		} //end private void showResultsTableResizeToMinWidthMaxHeight( ResultsTable, String )
 		//--------------------------------------------------------------------------------------------------------

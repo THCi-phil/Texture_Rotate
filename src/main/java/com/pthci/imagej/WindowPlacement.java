@@ -110,7 +110,23 @@ public class WindowPlacement {
 		                       , (int)imageWindowReferencePosition.getBounds().y
 		);
 	} //end public void setDialogAlignedBottomRightOfImage( GenericDialog, ImagePlus)
-	//-------------------------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------------------------------------
+	
+	
+	public void setResultsTableListedFirstAlignedBottomLeftImageListedSecond( ResultsTable rt, ImagePlus image) {
+		Window rw = WindowManager.getWindow( rt.getTitle );
+		
+		imageWindow = image.getWindow();
+		//they really, really ought to have been drawn already for this call to have been made!
+		if( (imageWindow == null )||( rw==null) ) { return; };
+		
+		rw.setLocation( (int)imageWindow.getBounds().x
+		              , (int)imageWindow.getBounds().y
+		               +(int)imageWindow.getSize().height
+		);
+		
+	} //end public void setResultsTableListedFirstAlignedBottomLeftImageListedSecond( ResultsTable, ImagePlus)
+	//------------------------------------------------------------------------------------------------------------
 	
 	
 	//-------------------------------------------------------------------------------------------------
