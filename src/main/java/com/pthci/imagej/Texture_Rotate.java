@@ -678,7 +678,7 @@ public class Texture_Rotate implements PlugIn {
 						//rt_breakPoint.addValue("texture Y"      ,       Y         );
 						//rt_breakPoint.addValue("x_onScreenMimic", x_onScreenMimic );
 						//rt_breakPoint.addValue("y_onScreenMimic", y_onScreenMimic );
-						break;
+						continue; //go to next Y, not jump out of the loop altogether
 					}
 					x_onWholeFieldImage = real_x0_onWholeField + Y * real_x_pixelIncrementWhenSwitchingToNextRow;
 					y_onWholeFieldImage = real_y0_onWholeField + Y * real_y_pixelIncrementWhenSwitchingToNextRow;
@@ -698,7 +698,7 @@ public class Texture_Rotate implements PlugIn {
 							//rt_breakPoint.addValue("texture Y"      ,       Y         );
 							//rt_breakPoint.addValue("x_onScreenMimic", x_onScreenMimic );
 							//rt_breakPoint.addValue("y_onScreenMimic", y_onScreenMimic );
-							break;
+							break; //jump out of X loop into next Y
 						}
 					} //end for row
 					//rt_rowEnd.incrementCounter();
@@ -721,7 +721,7 @@ public class Texture_Rotate implements PlugIn {
 						//rt_breakPoint.addValue("texture Y"      ,       Y         );
 						//rt_breakPoint.addValue("x_onScreenMimic", x_onScreenMimic );
 						//rt_breakPoint.addValue("y_onScreenMimic", y_onScreenMimic );
-						break;
+						continue; //go to next Y, not jump out of the loop altogether
 					}
 					x_onWholeFieldImage = real_x0_onWholeField + Y * real_x_pixelIncrementWhenSwitchingToNextRow + widthTexture*real_x_pixelIncrementWhenTraversingAlongRow;
 					y_onWholeFieldImage = real_y0_onWholeField + Y * real_y_pixelIncrementWhenSwitchingToNextRow + widthTexture*real_y_pixelIncrementWhenTraversingAlongRow;
@@ -741,7 +741,7 @@ public class Texture_Rotate implements PlugIn {
 							//rt_breakPoint.addValue("texture Y"      ,       Y         );
 							//rt_breakPoint.addValue("x_onScreenMimic", x_onScreenMimic );
 							//rt_breakPoint.addValue("y_onScreenMimic", y_onScreenMimic );
-							break;
+							break; //jump out of X loop into next Y
 						}
 					} //end for row
 					//rt_rowEnd.incrementCounter();
@@ -771,7 +771,7 @@ public class Texture_Rotate implements PlugIn {
 						//rt_breakPoint.addValue("texture Y"      ,       Y         );
 						//rt_breakPoint.addValue("x_onScreenMimic", x_onScreenMimic );
 						//rt_breakPoint.addValue("y_onScreenMimic", y_onScreenMimic );
-						break;
+						continue; //go to next X, not jump out of the loop altogether
 					}
 					x_onWholeFieldImage = real_x0_onWholeField + X * real_x_pixelIncrementWhenTraversingAlongRow;
 					y_onWholeFieldImage = real_y0_onWholeField + X * real_y_pixelIncrementWhenTraversingAlongRow;
@@ -790,7 +790,7 @@ public class Texture_Rotate implements PlugIn {
 							//rt_breakPoint.addValue("texture Y"      ,       Y         );
 							//rt_breakPoint.addValue("x_onScreenMimic", x_onScreenMimic );
 							//rt_breakPoint.addValue("y_onScreenMimic", y_onScreenMimic );
-							break;
+							break; //jump out of Y loop into next X
 						}
 					} //end for column
 					//rt_rowEnd.incrementCounter();
@@ -816,7 +816,7 @@ public class Texture_Rotate implements PlugIn {
 						//rt_breakPoint.addValue("texture Y"      ,       Y         );
 						//rt_breakPoint.addValue("x_onScreenMimic", x_onScreenMimic );
 						//rt_breakPoint.addValue("y_onScreenMimic", y_onScreenMimic );
-						break;
+						continue; //go to next X, not jump out of the loop altogether
 					}
 					x_onWholeFieldImage = real_x0_onWholeField + X * real_x_pixelIncrementWhenTraversingAlongRow + (heightTexture-1) * real_x_pixelIncrementWhenSwitchingToNextRow;
 					y_onWholeFieldImage = real_y0_onWholeField + X * real_y_pixelIncrementWhenTraversingAlongRow + (heightTexture-1) * real_y_pixelIncrementWhenSwitchingToNextRow;
@@ -835,7 +835,7 @@ public class Texture_Rotate implements PlugIn {
 							//rt_breakPoint.addValue("texture Y"      ,       Y         );
 							//rt_breakPoint.addValue("x_onScreenMimic", x_onScreenMimic );
 							//rt_breakPoint.addValue("y_onScreenMimic", y_onScreenMimic );
-							break;
+							break; //jump out of Y loop into next X
 						}
 					} //end for column
 					//rt_rowEnd.incrementCounter();
