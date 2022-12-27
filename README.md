@@ -4,7 +4,7 @@ Example code for quick texture rotate
 -3 of the corner cases
 -the no corners in image if tree
 
-
+--------------------------------------------------------------------
 To make this work in Eclipse
 
 (1) Clone it to your disc
@@ -23,4 +23,9 @@ To make this work in Eclipse
   - when the import progress bar (bottom right) has finished, close the welcome tab, Package Explorer tab will then appear
   
 Then Run.As Java Application
-  - will launch an imageJ instance wit this plugin running
+  - will launch an imageJ instance with this plugin running
+
+------------------------------------------------------------------------
+To work standalone
+
+copy the .jar to the ImageJ/plugins directory and restart ImageJ
