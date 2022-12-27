@@ -11,6 +11,7 @@ package com.pthci.imagej;
 import ij.IJ;
 import ij.ImageJ;
 import ij.ImagePlus;
+import ij.WindowManager;
 
 import ij.gui.Roi;
 import ij.gui.GenericDialog;
@@ -23,6 +24,7 @@ import ij.process.ByteProcessor;
 import ij.measure.ResultsTable;
 
 import java.awt.*;
+import java.awt.Window;
 
 
 /**
@@ -401,7 +403,7 @@ public class Texture_Rotate implements PlugIn {
 		} //end private boolean isOnScreen( double, double )
 		//------------------------------------------------------------------- 	
 		
-		
+
 		private void showResultsTableResizeToMinWidthMaxHeight( ResultsTable rt
 				                                                  , String       windowTitle
 				                                                  )
@@ -470,7 +472,6 @@ public class Texture_Rotate implements PlugIn {
 			rw.setSize( dimension_rw );
 		} //end private void showResultsTableResizeToMinWidthMaxHeight( ResultsTable, String )
 		//--------------------------------------------------------------------------------------------------------
-		
 		
 		
 		//===================================================================

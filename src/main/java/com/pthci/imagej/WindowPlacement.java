@@ -2,13 +2,18 @@ package com.pthci.imagej;
 
 import ij.IJ;
 import ij.ImagePlus;
+import ij.WindowManager;
+
 import ij.gui.GenericDialog;
 import ij.gui.ImageWindow;
 import ij.gui.StackWindow;
 
+import ij.measure.ResultsTable;
+
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Point;
+import java.awt.Window;
 
 
 //========================================================
@@ -114,7 +119,7 @@ public class WindowPlacement {
 	
 	
 	public void setResultsTableListedFirstAlignedBottomLeftImageListedSecond( ResultsTable rt, ImagePlus image) {
-		Window rw = WindowManager.getWindow( rt.getTitle );
+		Window rw = WindowManager.getWindow( rt.getTitle() );
 		
 		imageWindow = image.getWindow();
 		//they really, really ought to have been drawn already for this call to have been made!
