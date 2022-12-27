@@ -1,5 +1,10 @@
 Example code for quick texture rotate
 
+2022/12/27 working but with gaps to complete
+-3 of the corner cases
+-the no corners in image if tree
+
+
 To make this work in Eclipse
 
 (1) Clone it to your disc
