@@ -492,6 +492,7 @@ public class Texture_Rotate implements PlugIn {
 		//--------------------------------------------------------------------------------------------------------
 		
 		
+		
 		//===================================================================
 		private class InterpolationRotationMethods  {
 		//===================================================================
@@ -500,6 +501,7 @@ public class Texture_Rotate implements PlugIn {
 		//==================================================================
 		} //end private class InterpolationRotationMethods
 		//==================================================================
+		
 		
 		
 		//===================================================================
@@ -640,68 +642,6 @@ public class Texture_Rotate implements PlugIn {
 			//------------------------------------------------------------------- -------------------------------------------------
 			
 			
-			private void onlyTopLeftCornerInImage(byte[] pixels) {
-				IJ.log("just top left corner in image");
-				//can afford the processor cycles for more input checks, as by definition
-				//we won't be plotting more than a quarter of the pixels in the texture
-				//so the time saving in input checks more than compensates in increased speed.
-				resetAngle0to360deg();
-				if(      inputTextureRotationAngle <  90 ) {  // >=  0
-					if( textureAllFourCorners.topLeftCorner.real_y_onScreenMimic > (height_screenExtentsMimic_onFieldImage/2.0) ) {
-						scanFast_fromTopLeftCorner_Xplus_Yplus(pixels);
-					}else{
-						scanFast_fromTopLeftCorner_Yplus_inXplusOuterLoop(pixels);
-					}
-				}else if( inputTextureRotationAngle < 180 ) { // >= 90
-					if( textureAllFourCorners.topLeftCorner.real_y_onScreenMimic > (height_screenExtentsMimic_onFieldImage/2.0) ) {
-						scanFast_fromTopLeftCorner_Xplus_Yplus(pixels);
-					}else{
-						scanFast_fromTopLeftCorner_Yplus_inXplusOuterLoop(pixels);
-					}
-				}else if( inputTextureRotationAngle < 270 ) { // >=180
-					if( textureAllFourCorners.topLeftCorner.real_x_onScreenMimic < (width_screenExtentsMimic_onFieldImage/2.0) ) {
-						scanFast_fromTopLeftCorner_Xplus_Yplus(pixels);
-					}else{
-						scanFast_fromTopLeftCorner_Yplus_inXplusOuterLoop(pixels);
-					}
-				}else{ //must be in 4th quadrant >=270   <360
-					if( textureAllFourCorners.topLeftCorner.real_y_onScreenMimic < (height_screenExtentsMimic_onFieldImage/2.0) ) {
-						scanFast_fromTopLeftCorner_Xplus_Yplus(pixels);
-					}else{
-						scanFast_fromTopLeftCorner_Yplus_inXplusOuterLoop(pixels);
-					}
-				}
-			} //end private void onlyTopLeftCornerInImage(byte[])
-			//------------------------------------------------------------------- -------------------------------------------------
-			
-			
-			private void onlyTopRightCornerInImage(byte[] pixels) {
-				IJ.log("just top right corner in image");
-				resetAngle0to360deg();
-			} //end private void onlyTopRightCornerInImage(byte[])
-			//------------------------------------------------------------------- -------------------------------------------------
-			
-			
-			private void onlyBottomLeftCornerInImage(byte[] pixels) {
-				IJ.log("just bottom left corner in image");
-				resetAngle0to360deg();
-			} //end private void onlyBottomLeftCornerInImage(byte[])
-			//------------------------------------------------------------------- -------------------------------------------------
-			
-			private void onlyBottomRightCornerInImage(byte[] pixels) {
-				IJ.log("just bottom right corner in image");
-				resetAngle0to360deg();
-			} //end private void onlyBottomRightCornerInImage(byte[])
-			//------------------------------------------------------------------- -------------------------------------------------
-			
-			
-			private void noCornersOfTextureInimage(byte[] pixels) {
-				IJ.log("no corners in image");
-				//first test if they are all out of range and fast return if so
-			} //end private void noCornersOfTextureInimage(byte[])
-			//------------------------------------------------------------------- -------------------------------------------------
-			
-			
 			private void scanFast_fromTopLeftCorner_Xplus_Yplus_NO_BREAK(byte[] pixels) {
 				//IJ.log("scanFast_fromTopLeftCorner_Xplus_Yplus_NO_BREAK");
 				for( int Y=0; Y<heightTexture ; Y++ ) {
@@ -812,92 +752,6 @@ public class Texture_Rotate implements PlugIn {
 			} //end private void scanFast_fromTopRightCorner_Xminus_Yplus(byte[])
 			//------------------------------------------------------------------- 		
 			
-		/*	
-			private void scanFast_fromNBottomLeftCorner_Xplus_Yminus(byte[] pixels) {
-				//IJ.log("scanFast_fromNBottomLeftCorner_Xplus_Yminus");
-				for( int Y=heightTexture-1; Y>-1 ; Y-- ) {
-					posInTexturePixelArray = Y * widthTexture;
-					x_onScreenMimic = real_x0_onScreenMimic + Y * real_x_pixelIncrementWhenSwitchingToNextRow;
-					y_onScreenMimic = real_y0_onScreenMimic + Y * real_y_pixelIncrementWhenSwitchingToNextRow;
-					//could be faster by just testing in the direction you are going, rather than all four screen sides
-					if( !isOnScreen( x_onScreenMimic, y_onScreenMimic ) ) {
-						//rt_breakPoint.addValue("texture Y"      ,       Y         );
-						//rt_breakPoint.addValue("x_onScreenMimic", x_onScreenMimic );
-						//rt_breakPoint.addValue("y_onScreenMimic", y_onScreenMimic );
-						break;
-					}
-					x_onWholeFieldImage = real_x0_onWholeField + Y * real_x_pixelIncrementWhenSwitchingToNextRow;
-					y_onWholeFieldImage = real_y0_onWholeField + Y * real_y_pixelIncrementWhenSwitchingToNextRow;
-					for( int X=0 ; X<widthTexture ; X++ ) {
-						int_xforX_onWholeFieldImage = (int)Math.round( x_onWholeFieldImage ) ;
-						int_yforY_onWholeFieldImage = (int)Math.round( y_onWholeFieldImage ) ;
-						pixelPos_inWholeFieldPixelArray = int_xforX_onWholeFieldImage + int_yforY_onWholeFieldImage * widthWholeField ;
-						pixels[ pixelPos_inWholeFieldPixelArray ] = texturePixelArray[posInTexturePixelArray];
-						posInTexturePixelArray++;
-						x_onScreenMimic = x_onScreenMimic + real_x_pixelIncrementWhenTraversingAlongRow;
-						y_onScreenMimic = y_onScreenMimic + real_y_pixelIncrementWhenTraversingAlongRow;
-						x_onWholeFieldImage = x_onWholeFieldImage + real_x_pixelIncrementWhenTraversingAlongRow;
-						y_onWholeFieldImage = y_onWholeFieldImage + real_y_pixelIncrementWhenTraversingAlongRow;
-						//could be faster by just testing in the direction you are going, rather than all four screen sides
-						if( !isOnScreen( x_onScreenMimic, y_onScreenMimic ) ) {
-							//rt_breakPoint.addValue("texture X"      ,       X         );
-							//rt_breakPoint.addValue("texture Y"      ,       Y         );
-							//rt_breakPoint.addValue("x_onScreenMimic", x_onScreenMimic );
-							//rt_breakPoint.addValue("y_onScreenMimic", y_onScreenMimic );
-							break;
-						}
-					} //end for row
-					//rt_rowEnd.incrementCounter();
-					//rt_rowEnd.addValue("texture Y"      ,       Y         );
-					//rt_rowEnd.addValue("x_onScreenMimic", x_onScreenMimic );
-					//rt_rowEnd.addValue("y_onScreenMimic", y_onScreenMimic );
-				} //end for columns
-			} //end private void scanFast_fromNBottomLeftCorner_Xplus_Yminus(byte[])
-			//------------------------------------------------------------------- 		
-			
-			
-			private void scanFast_fromBottomRightCorner_Xminus_Yminus(byte[] pixels) {
-				//IJ.log("scanFast_fromBottomRightCorner_Xminus_Yminus");
-				for( int Y=heightTexture-1; Y>-1 ; Y-- ) {
-					posInTexturePixelArray = (Y+1) * widthTexture -1;
-					x_onScreenMimic = real_x0_onScreenMimic + Y * real_x_pixelIncrementWhenSwitchingToNextRow + widthTexture*real_x_pixelIncrementWhenTraversingAlongRow;
-					y_onScreenMimic = real_y0_onScreenMimic + Y * real_y_pixelIncrementWhenSwitchingToNextRow + widthTexture*real_y_pixelIncrementWhenTraversingAlongRow;
-					//could be faster by just testing in the direction you are going, rather than all four screen sides
-					if( !isOnScreen( x_onScreenMimic, y_onScreenMimic ) ) {
-						//rt_breakPoint.addValue("texture Y"      ,       Y         );
-						//rt_breakPoint.addValue("x_onScreenMimic", x_onScreenMimic );
-						//rt_breakPoint.addValue("y_onScreenMimic", y_onScreenMimic );
-						break;
-					}
-					x_onWholeFieldImage = real_x0_onWholeField + Y * real_x_pixelIncrementWhenSwitchingToNextRow + widthTexture*real_x_pixelIncrementWhenTraversingAlongRow;
-					y_onWholeFieldImage = real_y0_onWholeField + Y * real_y_pixelIncrementWhenSwitchingToNextRow + widthTexture*real_y_pixelIncrementWhenTraversingAlongRow;
-					for( int X=widthTexture-1 ; X>-1 ; X-- ) {
-						int_xforX_onWholeFieldImage = (int)Math.round( x_onWholeFieldImage ) ;
-						int_yforY_onWholeFieldImage = (int)Math.round( y_onWholeFieldImage ) ;
-						pixelPos_inWholeFieldPixelArray = int_xforX_onWholeFieldImage + int_yforY_onWholeFieldImage * widthWholeField ;
-						pixels[ pixelPos_inWholeFieldPixelArray ] = texturePixelArray[posInTexturePixelArray];
-						posInTexturePixelArray--;
-						x_onScreenMimic = x_onScreenMimic - real_x_pixelIncrementWhenTraversingAlongRow;
-						y_onScreenMimic = y_onScreenMimic - real_y_pixelIncrementWhenTraversingAlongRow;
-						x_onWholeFieldImage = x_onWholeFieldImage - real_x_pixelIncrementWhenTraversingAlongRow;
-						y_onWholeFieldImage = y_onWholeFieldImage - real_y_pixelIncrementWhenTraversingAlongRow;
-						//could be faster by just testing in the direction you are going, rather than all four screen sides
-						if( !isOnScreen( x_onScreenMimic, y_onScreenMimic ) ) {
-							//rt_breakPoint.addValue("texture X"      ,       X         );
-							//rt_breakPoint.addValue("texture Y"      ,       Y         );
-							//rt_breakPoint.addValue("x_onScreenMimic", x_onScreenMimic );
-							//rt_breakPoint.addValue("y_onScreenMimic", y_onScreenMimic );
-							break;
-						}
-					} //end for row
-					//rt_rowEnd.incrementCounter();
-					//rt_rowEnd.addValue("texture Y"      ,       Y         );
-					//rt_rowEnd.addValue("x_onScreenMimic", x_onScreenMimic );
-					//rt_rowEnd.addValue("y_onScreenMimic", y_onScreenMimic );
-				} //end for columns
-			} //end private void scanFast_fromBottomRightCorner_Xminus_Yminus(byte[])
-			//------------------------------------------------------------------- 		
-		*/	
 			
 			private void scanFast_fromTopLeftCorner_Yplus_inXplusOuterLoop(byte[] pixels) {
 				//IJ.log("scanFast_fromTopLeftCorner_Yplus_inXplusOuterLoop");
@@ -991,6 +845,95 @@ public class Texture_Rotate implements PlugIn {
 				} //end for row
 			} //end private void scanFast_fromBottomLeftCorner_Yminus_inXplusOuterLoop(byte[])
 			//------------------------------------------------------------------- 	
+			
+			
+			private void onlyTopLeftCornerInImage(byte[] pixels) {
+				//IJ.log("just top left corner in image");
+				//can afford the processor cycles for more input checks.  As by definition
+				//we won't be plotting more than a quarter of the pixels in the texture.
+				//So the time saving in input checks more than compensates in increased speed.
+				resetAngle0to360deg();
+				if(      inputTextureRotationAngle <  90 ) {  // >=  0
+					if( textureAllFourCorners.topLeftCorner.real_y_onScreenMimic > (height_screenExtentsMimic_onFieldImage/2.0) ) {
+						scanFast_fromTopLeftCorner_Xplus_Yplus(pixels);
+					}else{
+						scanFast_fromTopLeftCorner_Yplus_inXplusOuterLoop(pixels);
+					}
+				}else if( inputTextureRotationAngle < 180 ) { // >= 90
+					if( textureAllFourCorners.topLeftCorner.real_y_onScreenMimic > (height_screenExtentsMimic_onFieldImage/2.0) ) {
+						scanFast_fromTopLeftCorner_Xplus_Yplus(pixels);
+					}else{
+						scanFast_fromTopLeftCorner_Yplus_inXplusOuterLoop(pixels);
+					}
+				}else if( inputTextureRotationAngle < 270 ) { // >=180
+					if( textureAllFourCorners.topLeftCorner.real_x_onScreenMimic < (width_screenExtentsMimic_onFieldImage/2.0) ) {
+						scanFast_fromTopLeftCorner_Xplus_Yplus(pixels);
+					}else{
+						scanFast_fromTopLeftCorner_Yplus_inXplusOuterLoop(pixels);
+					}
+				}else{ //must be in 4th quadrant >=270   <360
+					if( textureAllFourCorners.topLeftCorner.real_y_onScreenMimic < (height_screenExtentsMimic_onFieldImage/2.0) ) {
+						scanFast_fromTopLeftCorner_Xplus_Yplus(pixels);
+					}else{
+						scanFast_fromTopLeftCorner_Yplus_inXplusOuterLoop(pixels);
+					}
+				}
+			} //end private void onlyTopLeftCornerInImage(byte[])
+			//------------------------------------------------------------------- -------------------------------------------------
+			
+			
+			private void onlyTopRightCornerInImage(byte[] pixels) {
+				IJ.log("just top right corner in image");
+				resetAngle0to360deg();
+			} //end private void onlyTopRightCornerInImage(byte[])
+			//------------------------------------------------------------------- -------------------------------------------------
+			
+			
+			private void onlyBottomLeftCornerInImage(byte[] pixels) {
+				IJ.log("just bottom left corner in image");
+				resetAngle0to360deg();
+			} //end private void onlyBottomLeftCornerInImage(byte[])
+			//------------------------------------------------------------------- -------------------------------------------------
+			
+			
+			private void onlyBottomRightCornerInImage(byte[] pixels) {
+				IJ.log("just bottom right corner in image");
+				resetAngle0to360deg();
+			} //end private void onlyBottomRightCornerInImage(byte[])
+			//------------------------------------------------------------------- -------------------------------------------------
+			
+			
+			private void noCornersOfTextureInimage(byte[] pixels) {
+				IJ.log("no corners in image");
+				//an if tree is messy but still the most easily understood way through the logic to select between the 16 cases
+				if(      inputTextureRotationAngle <  90 ) {  // >=  0
+					IJ.log("in first quadrant");
+					if( textureAllFourCorners.pointsStraddleScreenBottomRight_Q13( textureAllFourCorners.topLeftCorner ) ) {
+						IJ.log("straddles screen bottom right");
+						scanFast_fromTopLeftCorner_Xplus_Yplus(pixels);
+					}else{
+						//see drawing page 11 of notes
+						//if staddle bottom left corner is same method as [11xx]
+						//if straddle top left corner of image is scanFast_fromTopRightCorner_Xminus_Yplus
+						//if staddle top right corner is scanFast_fromBottomLeftCorner_Yminus_inXplusOuterLoop
+					}
+				//...............................................................................................................
+				}else if( inputTextureRotationAngle < 180 ) { // >= 90
+					//etc body
+				//...............................................................................................................
+				}else if( inputTextureRotationAngle < 270 ) { // >=180
+					//etc body
+				//...............................................................................................................
+				}else{ //must be in 4th quadrant >=270   <360
+					//etc body
+				}
+				//...............................................................................................................
+				//if none have been selected, the texture is completely off the screen and not etested at all
+				
+				
+			} //end private void noCornersOfTextureInimage(byte[])
+			//------------------------------------------------------------------- -------------------------------------------------		
+		
 		
 		//==================================================================
 		} //end private class FastRotationMethods
@@ -1034,7 +977,7 @@ public class Texture_Rotate implements PlugIn {
 															 );
 			} //end protected void setCornersXY()
 			//-------------------------------------------------------------------
-		
+			
 			
 			protected void setAreCornersOnScreen() {
 				topLeftCorner.setIsCornerOnScreen()     ;
@@ -1046,21 +989,75 @@ public class Texture_Rotate implements PlugIn {
 			                    | (bottomLeftCorner.isWithinScreenBounds ? 2 : 0 )
 				                  | (bottomRightCorner.isWithinScreenBounds? 1 : 0 )
 				                  ;
-				rt_CornerPositions.incrementCounter();
-				rt_CornerPositions.addValue("topLeft"          , (topLeftCorner.isWithinScreenBounds    ? 8 : 0 ) );
-				rt_CornerPositions.addValue("topRight"         , (topRightCorner.isWithinScreenBounds   ? 4 : 0 ) );
-				rt_CornerPositions.addValue("bottomLeft"       , (bottomLeftCorner.isWithinScreenBounds ? 2 : 0 ) );
-				rt_CornerPositions.addValue("bottomRight"      , (bottomRightCorner.isWithinScreenBounds? 1 : 0 ) );
-				rt_CornerPositions.addValue("cornersInImageMap", cornersInImageMap                      );
+				//rt_CornerPositions.incrementCounter();
+				//rt_CornerPositions.addValue("topLeft"          , (topLeftCorner.isWithinScreenBounds    ? 8 : 0 ) );
+				//rt_CornerPositions.addValue("topRight"         , (topRightCorner.isWithinScreenBounds   ? 4 : 0 ) );
+				//rt_CornerPositions.addValue("bottomLeft"       , (bottomLeftCorner.isWithinScreenBounds ? 2 : 0 ) );
+				//rt_CornerPositions.addValue("bottomRight"      , (bottomRightCorner.isWithinScreenBounds? 1 : 0 ) );
+				//rt_CornerPositions.addValue("cornersInImageMap", cornersInImageMap                      );
 			} //end protected void setAreCornersOnScreen()
 			//-------------------------------------------------------------------
-		
-		
+			
+			
 			protected void resetPreviousRotationCornersToThisRotation() {
 				topLeftCorner_fromLastRotation      = topLeftCorner     ; 
 				bottomRightCorner_fromLastRotation  = bottomRightCorner ;
 			} //end protected void resetPreviousRotationCornersToThisRotation()
 			//-------------------------------------------------------------------
+			
+			
+			//truly return the staddle (c.f. 2 Texture_Corner argument version following)
+			//but a pain as need multiple versions (or a boolean argument for * or / tan)
+			private boolean pointsStraddleScreenBottomRight_Q13( Texture_Corner tc ) {
+				double Xs = tc.real_x_onScreenMimic - width_screenExtentsMimic_onFieldImage ;
+				double Ys = Xs / Math.tan( Math.toRadians( inputTextureRotationAngle ) );
+				double testDebugForLogWindow = tc.real_y_onScreenMimic + Ys ;
+				IJ.log("Xs = " + Xs + " , Ys = " + Ys + "(tc.real_y_onScreenMimic + Ys)= " + testDebugForLogWindow );
+				return( (Xs > 0)
+				      &&( (tc.real_y_onScreenMimic + Ys) < height_screenExtentsMimic_onFieldImage)
+				      );
+			} //end private boolean pointsStraddleScreenBottomRight( Texture_Corner, Texture_Corner )
+			//-----------------------------------------------------------------------------------------------------------
+			
+			
+			private boolean pointsStraddleScreenBottomRight_Q24( Texture_Corner tc ) {
+				double Xs = tc.real_x_onScreenMimic - width_screenExtentsMimic_onFieldImage ;
+				double Ys = Xs * Math.tan( Math.toRadians( inputTextureRotationAngle ) );
+				return( (Xs > 0)
+				      &&( (tc.real_y_onScreenMimic + Ys) < height_screenExtentsMimic_onFieldImage)
+				      );
+			} //end private boolean pointsStraddleScreenBottomRight( Texture_Corner, Texture_Corner )
+			//-----------------------------------------------------------------------------------------------------------
+			
+			
+			private boolean pointsStraddleScreenBottomRight( Texture_Corner tc, boolean isTextureRotationAngleInQuadrant1or3 ) {
+				double Xs = tc.real_x_onScreenMimic - width_screenExtentsMimic_onFieldImage ;
+				double Ys;
+				if( isTextureRotationAngleInQuadrant1or3 ) {
+					Ys = Xs / Math.tan( Math.toRadians( inputTextureRotationAngle ) );
+				}else{
+					Ys = Xs * Math.tan( Math.toRadians( inputTextureRotationAngle ) );
+				}
+				return( (Xs > 0)
+				      &&( (tc.real_y_onScreenMimic + Ys) < height_screenExtentsMimic_onFieldImage)
+				      );
+			} //end private boolean pointsStraddleScreenBottomRight( Texture_Corner, Texture_Corner )
+			//-----------------------------------------------------------------------------------------------------------
+			
+			
+			//this method is much faster to implement, but computationally wasteful
+			//as it returns true for straddling, until BOTH tcA and tcB are clear of the image bounds
+			//the line between them will have cleared the screen corner some time ago
+			private boolean pointsStraddleScreenBottomRight( Texture_Corner tcA, Texture_Corner tcB ) {
+				return( ( tcA.real_x_onScreenMimic > width_screenExtentsMimic_onFieldImage  )
+				      &&( tcA.real_y_onScreenMimic < height_screenExtentsMimic_onFieldImage )
+				      &&( tcB.real_x_onScreenMimic < width_screenExtentsMimic_onFieldImage )
+				      &&( tcB.real_y_onScreenMimic > height_screenExtentsMimic_onFieldImage )
+				      );
+			} //end private boolean pointsStraddleScreenBottomRight( Texture_Corner, Texture_Corner )
+			//-----------------------------------------------------------------------------------------------------------		
+		
+		
 		
 		
 		//==================================================================
