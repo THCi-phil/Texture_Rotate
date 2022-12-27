@@ -346,20 +346,20 @@ public class Texture_Rotate implements PlugIn {
 		} //end protected void run()
 		//------------------------------------------------------------------------------------------
 		
-		
-		protected void setCosAndSinJustOnceForThisRotationAngle() {
+
+		private void setCosAndSinJustOnceForThisRotationAngle() {
 			cosAngle = Math.cos( Math.toRadians( inputTextureRotationAngle ) );
 			sinAngle = Math.sin( Math.toRadians( inputTextureRotationAngle ) );
-		} //end protected  void setCosAndSinJustOnceForThisRotationAngle
+		} //end private void setCosAndSinJustOnceForThisRotationAngle
 		//--------------------------------------------------------------------------------------------
 
 
-		protected void setXYincrements() {
+		private void setXYincrements() {
 			real_x_pixelIncrementWhenTraversingAlongRow = cosAngle ;
 			real_y_pixelIncrementWhenTraversingAlongRow	= sinAngle ;
 			real_x_pixelIncrementWhenSwitchingToNextRow = -sinAngle ;  //just swapped!
 			real_y_pixelIncrementWhenSwitchingToNextRow = cosAngle ;
-		} //end protected void setXYincrements()
+		} //end private void setXYincrements()
 		//------------------------------------------------------------------- 
 
 
@@ -367,7 +367,7 @@ public class Texture_Rotate implements PlugIn {
 		 * but we want the mapping onto the image to be simple X++ and Y++ from texture origin
 		 * So we need to find that reference point to start
 		 */
-		protected void setOriginInScreenCoordinates() {
+		private void setOriginInScreenCoordinates() {
 			double half_width  = widthTexture  / 2.0 ;
 			double half_height = heightTexture / 2.0 ;
 			
@@ -377,7 +377,7 @@ public class Texture_Rotate implements PlugIn {
 			real_x0_onWholeField = real_x0_onScreenMimic + x0_screenExtentsMimic_onFieldImage ;
 			real_y0_onWholeField = real_y0_onScreenMimic + y0_screenExtentsMimic_onFieldImage;
 
-		} //end protected void setOriginInScreenCoordinates()
+		} //end private void setOriginInScreenCoordinates()
 		//------------------------------------------------------------------- 
 		
 		
@@ -396,6 +396,22 @@ public class Texture_Rotate implements PlugIn {
 		//-------------------------------------------------------------------
 		
 		
+		private void resetAngle0to360deg() {
+			//the sine and cosine methods will be just fine with negative or >360° angles
+			//but it's a pain when working out what quadrant of orientation the rotated texture is in,
+			//needed for the selection of mapping method when there's only one corner on screen.
+			//IJ.log("input angle was " + inputTextureRotationAngle + "°" );
+			if( inputTextureRotationAngle < 0.0 ) {
+				inputTextureRotationAngle = -inputTextureRotationAngle - ( 360.0 * Math.floor( -inputTextureRotationAngle / 360.0 ) );
+				//IJ.log("angle reset to " + inputTextureRotationAngle + "°" );
+			}else if( inputTextureRotationAngle > 360.0 ) {
+				inputTextureRotationAngle = +inputTextureRotationAngle - ( 360.0 * Math.floor( +inputTextureRotationAngle / 360.0 ) );
+				//IJ.log("angle reset to " + inputTextureRotationAngle + "°" );
+			} //else do nothing
+		} //end private void resetAngle0to360deg()
+		//------------------------------------------------------------------------------------------		
+		
+		
 		private boolean isOnScreen( double x, double y ) {
 			return (  ( x > 0.0 )&&( x < width_screenExtentsMimic_onFieldImage )
 			        &&( y > 0.0 )&&( y < height_screenExtentsMimic_onFieldImage )
@@ -406,8 +422,8 @@ public class Texture_Rotate implements PlugIn {
 
 		private void showResultsTableResizeToMinWidthMaxHeight( ResultsTable rt
 				                                                  , String       windowTitle
-				                                                  )
-		{	//have to .show() it to start with, for there to be a Window object for the methods we need
+				                                                  ) {
+			//have to .show() it to start with, for there to be a Window object for the methods we need
 			rt.show( windowTitle );
 		
 			Window rw = WindowManager.getWindow( windowTitle );
@@ -468,7 +484,9 @@ public class Texture_Rotate implements PlugIn {
 			                               + 137             //width of application icon, and min max close buttons
 			                              , columnHeadingsWidth + spacingBetweenColumnHeadings + leftAndRightWindowBorder
 																		);
-			dimension_rw.height = windowPlacement.getMaxAvailableClearScreenHeight();
+			dimension_rw.height = windowPlacement.getMaxAvailableClearScreenHeight()
+			                    - imageWholeField_width_Clipped.getWindow().getSize().height
+			                    ;
 			rw.setSize( dimension_rw );
 		} //end private void showResultsTableResizeToMinWidthMaxHeight( ResultsTable, String )
 		//--------------------------------------------------------------------------------------------------------
@@ -487,28 +505,24 @@ public class Texture_Rotate implements PlugIn {
 		//===================================================================
 		private class FastRotationMethods  {
 		//===================================================================
-		
+			int posInTexturePixelArray;
+	
+	
 			protected void drawWithoutClipping( ByteProcessor bp ) {
 				byte[] pixels = (byte[]) bp.getPixels();
-				
-				x_onScreenMimic = real_x0_onScreenMimic;
-				y_onScreenMimic = real_y0_onScreenMimic;
-				
-				x_onWholeFieldImage = real_x0_onWholeField;
-				y_onWholeFieldImage = real_y0_onWholeField;
 	
-				int offset =0;
 				for( int Y=0; Y<heightTexture ; Y++ ) {
-					offset = Y * widthTexture;
-					x_onScreenMimic = real_x0_onScreenMimic + Y * real_x_pixelIncrementWhenSwitchingToNextRow;
-					y_onScreenMimic = real_y0_onScreenMimic + Y * real_y_pixelIncrementWhenSwitchingToNextRow;
+					posInTexturePixelArray = Y * widthTexture;
 					x_onWholeFieldImage = real_x0_onWholeField + Y * real_x_pixelIncrementWhenSwitchingToNextRow;
 					y_onWholeFieldImage = real_y0_onWholeField + Y * real_y_pixelIncrementWhenSwitchingToNextRow;
 					for( int X=0 ; X<widthTexture ; X++ ) {
 						int_xforX_onWholeFieldImage = (int)Math.round( x_onWholeFieldImage ) ;
 						int_yforY_onWholeFieldImage = (int)Math.round( y_onWholeFieldImage ) ;
 						pixelPos_inWholeFieldPixelArray = int_xforX_onWholeFieldImage + int_yforY_onWholeFieldImage * widthWholeField ;
-						pixels[ pixelPos_inWholeFieldPixelArray ] = texturePixelArray[offset++];
+						pixels[ pixelPos_inWholeFieldPixelArray ] = texturePixelArray[posInTexturePixelArray];
+						posInTexturePixelArray++;
+						//a really optimised fast code would do the ++ in the =texturePixelArray[posInTexturePixelArray++];
+						//but it's harder to understand, and a good compiler optimiser will do that anyway
 						x_onWholeFieldImage = x_onWholeFieldImage + real_x_pixelIncrementWhenTraversingAlongRow;
 						y_onWholeFieldImage = y_onWholeFieldImage + real_y_pixelIncrementWhenTraversingAlongRow;
 					} //end for row
@@ -528,26 +542,16 @@ public class Texture_Rotate implements PlugIn {
 				rt_breakPoint.reset();
 				rt_CornerPositions.reset();
 				
-				//Initial setting of the (x,y) we are using to map the position to draw the texture to
-				/*to the mapping of the origin (X0,Y0) of the texture to (x0,y0)
-				*Actually it isn't necessary to do this outside the mapping methods, the first statement
-				*in the loops in each method necessarily resets this point
-				x_onScreenMimic = real_x0_onScreenMimic;
-				y_onScreenMimic = real_y0_onScreenMimic;
-				
-				x_onWholeFieldImage = real_x0_onWholeField;
-				y_onWholeFieldImage = real_y0_onWholeField;
-				*/
-				
+				//just get the texture corners relative to the screen to select mapping method
 				textureAllFourCorners.setCornersXY();
 				textureAllFourCorners.setAreCornersOnScreen();
-				//fast return if rotating quite slowly, so this method is called in screen update faster
-				//than it is worth redrawing it
+				//fast return if rotating quite slowly. So slowly that this method is being called 
+				//from screen update code, faster than it is worth redrawing it.
 				if( !hasMovedMoreThanAPixel() ) return;
 				
 				selectMethodFromPositionTexturemappedToRelativeToScreenBounds(pixels);
 				
-				//tidy up: prepare for next rotation call
+				//tidy up: prepare for next rotation call (only used for testing if has moved)
 				textureAllFourCorners.resetPreviousRotationCornersToThisRotation();
 				
 				//rt_rowEnd.show(    "texture positions at row end" );
@@ -599,88 +603,122 @@ public class Texture_Rotate implements PlugIn {
 										scanFast_fromTopLeftCorner_Xplus_Yplus_NO_BREAK(pixels);
 										}
 										break;
-					case 14 : { // 1110
-										scanFast_fromTopLeftCorner_Xplus_Yplus(pixels);
-										}
+					case 14 : { /* 1110 */  scanFast_fromTopLeftCorner_Xplus_Yplus(pixels);	              }
 										break;
-					case 13 : { // 1101
-										scanFast_fromTopRightCorner_Xminus_Yplus(pixels);
-										}
+					case 13 : { /* 1101 */  scanFast_fromTopRightCorner_Xminus_Yplus(pixels);             }
 										break;
-					case 12 : { // 1100
-										scanFast_fromTopLeftCorner_Yplus_inXplusOuterLoop(pixels);
-										}
+					case 12 : { /* 1100 */  scanFast_fromTopLeftCorner_Yplus_inXplusOuterLoop(pixels);    }
 										break;
-					case 11 : { // 1011
-										scanFast_fromTopLeftCorner_Xplus_Yplus(pixels);
-										}
+					case 11 : { /* 1011 */  scanFast_fromTopLeftCorner_Xplus_Yplus(pixels);               }
 										break;
-					case 10 : { // 1010
-										scanFast_fromTopLeftCorner_Xplus_Yplus(pixels);
-										}
+					case 10 : { /* 1010 */  scanFast_fromTopLeftCorner_Xplus_Yplus(pixels);               }
 										break;
-					case  9 : { // 1001
-										//this isn't feasible unless the texture is wide compared to screen height
-										//or high compared to screen width
-										}
+					case  9 : { /* 1001 not feasible do nothing */                                        }
+					          // infeasible unless the texture is wide compared to screen height or high c.f. screen width
 										break;
-					case  8 : { // 1000
-										IJ.log("just top left corner in image");
-										}
+					case  8 : { /* 1000 */  onlyTopLeftCornerInImage(pixels);                             }
 										break;
-					case  7 : { // 0111
-										scanFast_fromTopRightCorner_Xminus_Yplus(pixels);
-										}
+					case  7 : { /* 0111 */  scanFast_fromTopRightCorner_Xminus_Yplus(pixels);             }
 										break;
-					case  6 : { // 0110
-										//this isn't feasible unless the texture is wide compared to screen height
-										//or high compared to screen width
-										}
+					case  6 : { /* 0110 not feasible do nothing */                                        }
+										// infeasible unless the texture is wide compared to screen height or high c.f. screen width
 										break;
-					case  5 : { // 0101
-										scanFast_fromTopRightCorner_Xminus_Yplus(pixels);
-										}
+					case  5 : { /* 0101 */  scanFast_fromTopRightCorner_Xminus_Yplus(pixels);             }
 										break;
-					case  4 : { // 0100
-										IJ.log("just top right corner in image");
-										}
+					case  4 : { /* 0100 */ 	onlyTopRightCornerInImage(pixels);                            }
 										break;
-					case  3 : { // 0011
-										scanFast_fromBottomLeftCorner_Yminus_inXplusOuterLoop(pixels);
-										}
+					case  3 : { /* 0011 */  scanFast_fromBottomLeftCorner_Yminus_inXplusOuterLoop(pixels);}
 										break;
-					case  2 : { // 0010
-										IJ.log("just bottom left corner in image");
-										}
+					case  2 : { /* 0010 */  onlyBottomLeftCornerInImage(pixels);                          }
 										break;
-					case  1 : { // 0001
-										IJ.log("just bottom right corner in image");
-										}
+					case  1 : { /* 0001 */  onlyBottomRightCornerInImage(pixels);                         }
 										break;
-					case  0 : { // 0000 if no corners of the texture are on screen, do nothing
-										}
+					case  0 : { /* 0000 */  noCornersOfTextureInimage(pixels);                            }
 										break;
 				} //end switch case
 			} //end private void selectMethodFromPositionTexturemappedToRelativeToScreenBounds(byte[])
 			//------------------------------------------------------------------- -------------------------------------------------
 			
-		
+			
+			private void onlyTopLeftCornerInImage(byte[] pixels) {
+				IJ.log("just top left corner in image");
+				//can afford the processor cycles for more input checks, as by definition
+				//we won't be plotting more than a quarter of the pixels in the texture
+				//so the time saving in input checks more than compensates in increased speed.
+				resetAngle0to360deg();
+				if(      inputTextureRotationAngle <  90 ) {  // >=  0
+					if( textureAllFourCorners.topLeftCorner.real_y_onScreenMimic > (height_screenExtentsMimic_onFieldImage/2.0) ) {
+						scanFast_fromTopLeftCorner_Xplus_Yplus(pixels);
+					}else{
+						scanFast_fromTopLeftCorner_Yplus_inXplusOuterLoop(pixels);
+					}
+				}else if( inputTextureRotationAngle < 180 ) { // >= 90
+					if( textureAllFourCorners.topLeftCorner.real_y_onScreenMimic > (height_screenExtentsMimic_onFieldImage/2.0) ) {
+						scanFast_fromTopLeftCorner_Xplus_Yplus(pixels);
+					}else{
+						scanFast_fromTopLeftCorner_Yplus_inXplusOuterLoop(pixels);
+					}
+				}else if( inputTextureRotationAngle < 270 ) { // >=180
+					if( textureAllFourCorners.topLeftCorner.real_x_onScreenMimic < (width_screenExtentsMimic_onFieldImage/2.0) ) {
+						scanFast_fromTopLeftCorner_Xplus_Yplus(pixels);
+					}else{
+						scanFast_fromTopLeftCorner_Yplus_inXplusOuterLoop(pixels);
+					}
+				}else{ //must be in 4th quadrant >=270   <360
+					if( textureAllFourCorners.topLeftCorner.real_y_onScreenMimic < (height_screenExtentsMimic_onFieldImage/2.0) ) {
+						scanFast_fromTopLeftCorner_Xplus_Yplus(pixels);
+					}else{
+						scanFast_fromTopLeftCorner_Yplus_inXplusOuterLoop(pixels);
+					}
+				}
+			} //end private void onlyTopLeftCornerInImage(byte[])
+			//------------------------------------------------------------------- -------------------------------------------------
+			
+			
+			private void onlyTopRightCornerInImage(byte[] pixels) {
+				IJ.log("just top right corner in image");
+				resetAngle0to360deg();
+			} //end private void onlyTopRightCornerInImage(byte[])
+			//------------------------------------------------------------------- -------------------------------------------------
+			
+			
+			private void onlyBottomLeftCornerInImage(byte[] pixels) {
+				IJ.log("just bottom left corner in image");
+				resetAngle0to360deg();
+			} //end private void onlyBottomLeftCornerInImage(byte[])
+			//------------------------------------------------------------------- -------------------------------------------------
+			
+			private void onlyBottomRightCornerInImage(byte[] pixels) {
+				IJ.log("just bottom right corner in image");
+				resetAngle0to360deg();
+			} //end private void onlyBottomRightCornerInImage(byte[])
+			//------------------------------------------------------------------- -------------------------------------------------
+			
+			
+			private void noCornersOfTextureInimage(byte[] pixels) {
+				IJ.log("no corners in image");
+				//first test if they are all out of range and fast return if so
+			} //end private void noCornersOfTextureInimage(byte[])
+			//------------------------------------------------------------------- -------------------------------------------------
+			
+			
 			private void scanFast_fromTopLeftCorner_Xplus_Yplus_NO_BREAK(byte[] pixels) {
 				//IJ.log("scanFast_fromTopLeftCorner_Xplus_Yplus_NO_BREAK");
-				int offset;
 				for( int Y=0; Y<heightTexture ; Y++ ) {
-					offset = Y * widthTexture;
-					x_onScreenMimic = real_x0_onScreenMimic + Y * real_x_pixelIncrementWhenSwitchingToNextRow;
-					y_onScreenMimic = real_y0_onScreenMimic + Y * real_y_pixelIncrementWhenSwitchingToNextRow;
+					posInTexturePixelArray = Y * widthTexture;
+					//don't actually use the onScreenMimic variables in this demo routine
+					//x_onScreenMimic = real_x0_onScreenMimic + Y * real_x_pixelIncrementWhenSwitchingToNextRow;
+					//y_onScreenMimic = real_y0_onScreenMimic + Y * real_y_pixelIncrementWhenSwitchingToNextRow;
 					x_onWholeFieldImage = real_x0_onWholeField + Y * real_x_pixelIncrementWhenSwitchingToNextRow;
 					y_onWholeFieldImage = real_y0_onWholeField + Y * real_y_pixelIncrementWhenSwitchingToNextRow;
 					for( int X=0 ; X<widthTexture ; X++ ) {
 						int_xforX_onWholeFieldImage = (int)Math.round( x_onWholeFieldImage ) ;
 						int_yforY_onWholeFieldImage = (int)Math.round( y_onWholeFieldImage ) ;
 						pixelPos_inWholeFieldPixelArray = int_xforX_onWholeFieldImage + int_yforY_onWholeFieldImage * widthWholeField ;
-						pixels[ pixelPos_inWholeFieldPixelArray ] = texturePixelArray[offset++];
-						x_onScreenMimic = x_onScreenMimic + real_x_pixelIncrementWhenTraversingAlongRow;
-						y_onScreenMimic = y_onScreenMimic + real_y_pixelIncrementWhenTraversingAlongRow;
+						pixels[ pixelPos_inWholeFieldPixelArray ] = texturePixelArray[posInTexturePixelArray];
+						posInTexturePixelArray++;
+						//x_onScreenMimic = x_onScreenMimic + real_x_pixelIncrementWhenTraversingAlongRow;
+						//y_onScreenMimic = y_onScreenMimic + real_y_pixelIncrementWhenTraversingAlongRow;
 						x_onWholeFieldImage = x_onWholeFieldImage + real_x_pixelIncrementWhenTraversingAlongRow;
 						y_onWholeFieldImage = y_onWholeFieldImage + real_y_pixelIncrementWhenTraversingAlongRow;
 					} //end for row
@@ -691,9 +729,8 @@ public class Texture_Rotate implements PlugIn {
 			
 			private void scanFast_fromTopLeftCorner_Xplus_Yplus(byte[] pixels) {
 				//IJ.log("scanFast_fromTopLeftCorner_Xplus_Yplus");
-				int offset;
 				for( int Y=0; Y<heightTexture ; Y++ ) {
-					offset = Y * widthTexture;
+					posInTexturePixelArray = Y * widthTexture;
 					x_onScreenMimic = real_x0_onScreenMimic + Y * real_x_pixelIncrementWhenSwitchingToNextRow;
 					y_onScreenMimic = real_y0_onScreenMimic + Y * real_y_pixelIncrementWhenSwitchingToNextRow;
 					//could be faster by just testing in the direction you are going, rather than all four screen sides
@@ -709,7 +746,8 @@ public class Texture_Rotate implements PlugIn {
 						int_xforX_onWholeFieldImage = (int)Math.round( x_onWholeFieldImage ) ;
 						int_yforY_onWholeFieldImage = (int)Math.round( y_onWholeFieldImage ) ;
 						pixelPos_inWholeFieldPixelArray = int_xforX_onWholeFieldImage + int_yforY_onWholeFieldImage * widthWholeField ;
-						pixels[ pixelPos_inWholeFieldPixelArray ] = texturePixelArray[offset++];
+						pixels[ pixelPos_inWholeFieldPixelArray ] = texturePixelArray[posInTexturePixelArray];
+						posInTexturePixelArray++;
 						x_onScreenMimic = x_onScreenMimic + real_x_pixelIncrementWhenTraversingAlongRow;
 						y_onScreenMimic = y_onScreenMimic + real_y_pixelIncrementWhenTraversingAlongRow;
 						x_onWholeFieldImage = x_onWholeFieldImage + real_x_pixelIncrementWhenTraversingAlongRow;
@@ -734,9 +772,8 @@ public class Texture_Rotate implements PlugIn {
 		
 			private void scanFast_fromTopRightCorner_Xminus_Yplus(byte[] pixels) {
 				//IJ.log("scanFast_fromTopRightCorner_Xminus_Yplus");
-				int offset;
 				for( int Y=0; Y<heightTexture ; Y++ ) {
-					offset = (Y+1) * widthTexture -1;
+					posInTexturePixelArray = (Y+1) * widthTexture -1;
 					x_onScreenMimic = real_x0_onScreenMimic + Y * real_x_pixelIncrementWhenSwitchingToNextRow + widthTexture*real_x_pixelIncrementWhenTraversingAlongRow;
 					y_onScreenMimic = real_y0_onScreenMimic + Y * real_y_pixelIncrementWhenSwitchingToNextRow + widthTexture*real_y_pixelIncrementWhenTraversingAlongRow;
 					//could be faster by just testing in the direction you are going, rather than all four screen sides
@@ -752,7 +789,8 @@ public class Texture_Rotate implements PlugIn {
 						int_xforX_onWholeFieldImage = (int)Math.round( x_onWholeFieldImage ) ;
 						int_yforY_onWholeFieldImage = (int)Math.round( y_onWholeFieldImage ) ;
 						pixelPos_inWholeFieldPixelArray = int_xforX_onWholeFieldImage + int_yforY_onWholeFieldImage * widthWholeField ;
-						pixels[ pixelPos_inWholeFieldPixelArray ] = texturePixelArray[offset--];
+						pixels[ pixelPos_inWholeFieldPixelArray ] = texturePixelArray[posInTexturePixelArray];
+						posInTexturePixelArray--;
 						x_onScreenMimic = x_onScreenMimic - real_x_pixelIncrementWhenTraversingAlongRow;
 						y_onScreenMimic = y_onScreenMimic - real_y_pixelIncrementWhenTraversingAlongRow;
 						x_onWholeFieldImage = x_onWholeFieldImage - real_x_pixelIncrementWhenTraversingAlongRow;
@@ -777,9 +815,8 @@ public class Texture_Rotate implements PlugIn {
 		/*	
 			private void scanFast_fromNBottomLeftCorner_Xplus_Yminus(byte[] pixels) {
 				//IJ.log("scanFast_fromNBottomLeftCorner_Xplus_Yminus");
-				int offset;
 				for( int Y=heightTexture-1; Y>-1 ; Y-- ) {
-					offset = Y * widthTexture;
+					posInTexturePixelArray = Y * widthTexture;
 					x_onScreenMimic = real_x0_onScreenMimic + Y * real_x_pixelIncrementWhenSwitchingToNextRow;
 					y_onScreenMimic = real_y0_onScreenMimic + Y * real_y_pixelIncrementWhenSwitchingToNextRow;
 					//could be faster by just testing in the direction you are going, rather than all four screen sides
@@ -795,7 +832,8 @@ public class Texture_Rotate implements PlugIn {
 						int_xforX_onWholeFieldImage = (int)Math.round( x_onWholeFieldImage ) ;
 						int_yforY_onWholeFieldImage = (int)Math.round( y_onWholeFieldImage ) ;
 						pixelPos_inWholeFieldPixelArray = int_xforX_onWholeFieldImage + int_yforY_onWholeFieldImage * widthWholeField ;
-						pixels[ pixelPos_inWholeFieldPixelArray ] = texturePixelArray[offset++];
+						pixels[ pixelPos_inWholeFieldPixelArray ] = texturePixelArray[posInTexturePixelArray];
+						posInTexturePixelArray++;
 						x_onScreenMimic = x_onScreenMimic + real_x_pixelIncrementWhenTraversingAlongRow;
 						y_onScreenMimic = y_onScreenMimic + real_y_pixelIncrementWhenTraversingAlongRow;
 						x_onWholeFieldImage = x_onWholeFieldImage + real_x_pixelIncrementWhenTraversingAlongRow;
@@ -820,9 +858,8 @@ public class Texture_Rotate implements PlugIn {
 			
 			private void scanFast_fromBottomRightCorner_Xminus_Yminus(byte[] pixels) {
 				//IJ.log("scanFast_fromBottomRightCorner_Xminus_Yminus");
-				int offset;
 				for( int Y=heightTexture-1; Y>-1 ; Y-- ) {
-					offset = (Y+1) * widthTexture -1;
+					posInTexturePixelArray = (Y+1) * widthTexture -1;
 					x_onScreenMimic = real_x0_onScreenMimic + Y * real_x_pixelIncrementWhenSwitchingToNextRow + widthTexture*real_x_pixelIncrementWhenTraversingAlongRow;
 					y_onScreenMimic = real_y0_onScreenMimic + Y * real_y_pixelIncrementWhenSwitchingToNextRow + widthTexture*real_y_pixelIncrementWhenTraversingAlongRow;
 					//could be faster by just testing in the direction you are going, rather than all four screen sides
@@ -838,7 +875,8 @@ public class Texture_Rotate implements PlugIn {
 						int_xforX_onWholeFieldImage = (int)Math.round( x_onWholeFieldImage ) ;
 						int_yforY_onWholeFieldImage = (int)Math.round( y_onWholeFieldImage ) ;
 						pixelPos_inWholeFieldPixelArray = int_xforX_onWholeFieldImage + int_yforY_onWholeFieldImage * widthWholeField ;
-						pixels[ pixelPos_inWholeFieldPixelArray ] = texturePixelArray[offset--];
+						pixels[ pixelPos_inWholeFieldPixelArray ] = texturePixelArray[posInTexturePixelArray];
+						posInTexturePixelArray--;
 						x_onScreenMimic = x_onScreenMimic - real_x_pixelIncrementWhenTraversingAlongRow;
 						y_onScreenMimic = y_onScreenMimic - real_y_pixelIncrementWhenTraversingAlongRow;
 						x_onWholeFieldImage = x_onWholeFieldImage - real_x_pixelIncrementWhenTraversingAlongRow;
@@ -862,17 +900,16 @@ public class Texture_Rotate implements PlugIn {
 		*/	
 			
 			private void scanFast_fromTopLeftCorner_Yplus_inXplusOuterLoop(byte[] pixels) {
-				IJ.log("scanFast_fromTopLeftCorner_Yplus_inXplusOuterLoop");
+				//IJ.log("scanFast_fromTopLeftCorner_Yplus_inXplusOuterLoop");
 				//If this was called a lot, it would be quicker to initialise an x-y swapped
 				//second version of the texture, so could still ++ or -- through the pixel array
 				//But, that would be quite messy to set up with the current structure
 				//and hard to get your head around the transformed axes - and origin
 				//Just not worth it for what is a single unusual case
-				//Just accept +width increment is marginallyu slower than ++
+				//Just accept +width increment is marginally slower than ++
 				
-				int offset;
 				for( int X=0 ; X<widthTexture ; X++ ) {
-					offset = X ;					
+					posInTexturePixelArray = X ;					
 					//Y is always 0 for reset of loop, so can cut out the +Y * real_x_pixelIncrementWhenSwitchingToNextRow
 					x_onScreenMimic = real_x0_onScreenMimic + X * real_x_pixelIncrementWhenTraversingAlongRow;
 					y_onScreenMimic = real_y0_onScreenMimic + X * real_y_pixelIncrementWhenTraversingAlongRow;
@@ -888,8 +925,8 @@ public class Texture_Rotate implements PlugIn {
 						int_xforX_onWholeFieldImage = (int)Math.round( x_onWholeFieldImage ) ;
 						int_yforY_onWholeFieldImage = (int)Math.round( y_onWholeFieldImage ) ;
 						pixelPos_inWholeFieldPixelArray = int_xforX_onWholeFieldImage + int_yforY_onWholeFieldImage * widthWholeField ;
-						pixels[ pixelPos_inWholeFieldPixelArray ] = texturePixelArray[offset];
-						offset = offset + widthTexture;
+						pixels[ pixelPos_inWholeFieldPixelArray ] = texturePixelArray[posInTexturePixelArray];
+						posInTexturePixelArray += widthTexture;
 						x_onScreenMimic = x_onScreenMimic + real_x_pixelIncrementWhenSwitchingToNextRow;
 						y_onScreenMimic = y_onScreenMimic + real_y_pixelIncrementWhenSwitchingToNextRow;
 						x_onWholeFieldImage = x_onWholeFieldImage + real_x_pixelIncrementWhenSwitchingToNextRow;
@@ -906,33 +943,39 @@ public class Texture_Rotate implements PlugIn {
 					//rt_rowEnd.addValue("texture Y"      ,       Y         );
 					//rt_rowEnd.addValue("x_onScreenMimic", x_onScreenMimic );
 					//rt_rowEnd.addValue("y_onScreenMimic", y_onScreenMimic );
-				} //end for row
+				} //end for row	
+			} //end private void scanFast_fromTopLeftCorner_Yplus_inXplusOuterLoop(byte[] )
+			//------------------------------------------------------------------- 	
+			
+			
+			private void scanFast_fromBottomLeftCorner_Yminus_inXplusOuterLoop(byte[] pixels) {
+				IJ.log("scanFast_fromBottomLeftCorner_Yminus_inXplusOuterLoop");
+				//see intro comments in scanFast_fromTopLeftCorner_Yplus_inXplusOuterLoop
 				
-	/*			
-				int offset;
-				for( int Y=0; Y<heightTexture ; Y++ ) {
-					offset = Y * widthTexture;
-					x_onScreenMimic = real_x0_onScreenMimic + Y * real_x_pixelIncrementWhenSwitchingToNextRow;
-					y_onScreenMimic = real_y0_onScreenMimic + Y * real_y_pixelIncrementWhenSwitchingToNextRow;
-					//could be faster by just testing in the direction you are going, rather than all four screen sides
+				int offsetEachColumn = (heightTexture-1)*widthTexture ;
+				for( int X=0 ; X<widthTexture ; X++ ) {
+					posInTexturePixelArray = X + offsetEachColumn ;					
+					//Y is always (heightTexture-1) for reset of loop
+					x_onScreenMimic = real_x0_onScreenMimic + X * real_x_pixelIncrementWhenTraversingAlongRow + (heightTexture-1) * real_x_pixelIncrementWhenSwitchingToNextRow;
+					y_onScreenMimic = real_y0_onScreenMimic + X * real_y_pixelIncrementWhenTraversingAlongRow + (heightTexture-1) * real_y_pixelIncrementWhenSwitchingToNextRow;
 					if( !isOnScreen( x_onScreenMimic, y_onScreenMimic ) ) {
 						//rt_breakPoint.addValue("texture Y"      ,       Y         );
 						//rt_breakPoint.addValue("x_onScreenMimic", x_onScreenMimic );
 						//rt_breakPoint.addValue("y_onScreenMimic", y_onScreenMimic );
 						break;
 					}
-					x_onWholeFieldImage = real_x0_onWholeField + Y * real_x_pixelIncrementWhenSwitchingToNextRow;
-					y_onWholeFieldImage = real_y0_onWholeField + Y * real_y_pixelIncrementWhenSwitchingToNextRow;
-					for( int X=0 ; X<widthTexture ; X++ ) {
+					x_onWholeFieldImage = real_x0_onWholeField + X * real_x_pixelIncrementWhenTraversingAlongRow + (heightTexture-1) * real_x_pixelIncrementWhenSwitchingToNextRow;
+					y_onWholeFieldImage = real_y0_onWholeField + X * real_y_pixelIncrementWhenTraversingAlongRow + (heightTexture-1) * real_y_pixelIncrementWhenSwitchingToNextRow;
+					for( int Y=(heightTexture-1); Y>-1 ; Y-- ) {
 						int_xforX_onWholeFieldImage = (int)Math.round( x_onWholeFieldImage ) ;
 						int_yforY_onWholeFieldImage = (int)Math.round( y_onWholeFieldImage ) ;
 						pixelPos_inWholeFieldPixelArray = int_xforX_onWholeFieldImage + int_yforY_onWholeFieldImage * widthWholeField ;
-						pixels[ pixelPos_inWholeFieldPixelArray ] = texturePixelArray[offset++];
-						x_onScreenMimic = x_onScreenMimic + real_x_pixelIncrementWhenTraversingAlongRow;
-						y_onScreenMimic = y_onScreenMimic + real_y_pixelIncrementWhenTraversingAlongRow;
-						x_onWholeFieldImage = x_onWholeFieldImage + real_x_pixelIncrementWhenTraversingAlongRow;
-						y_onWholeFieldImage = y_onWholeFieldImage + real_y_pixelIncrementWhenTraversingAlongRow;
-						//could be faster by just testing in the direction you are going, rather than all four screen sides
+						pixels[ pixelPos_inWholeFieldPixelArray ] = texturePixelArray[posInTexturePixelArray];
+						posInTexturePixelArray -= widthTexture;
+						x_onScreenMimic = x_onScreenMimic - real_x_pixelIncrementWhenSwitchingToNextRow;
+						y_onScreenMimic = y_onScreenMimic - real_y_pixelIncrementWhenSwitchingToNextRow;
+						x_onWholeFieldImage = x_onWholeFieldImage - real_x_pixelIncrementWhenSwitchingToNextRow;
+						y_onWholeFieldImage = y_onWholeFieldImage - real_y_pixelIncrementWhenSwitchingToNextRow;
 						if( !isOnScreen( x_onScreenMimic, y_onScreenMimic ) ) {
 							//rt_breakPoint.addValue("texture X"      ,       X         );
 							//rt_breakPoint.addValue("texture Y"      ,       Y         );
@@ -940,20 +983,12 @@ public class Texture_Rotate implements PlugIn {
 							//rt_breakPoint.addValue("y_onScreenMimic", y_onScreenMimic );
 							break;
 						}
-					} //end for row
-
+					} //end for column
 					//rt_rowEnd.incrementCounter();
 					//rt_rowEnd.addValue("texture Y"      ,       Y         );
 					//rt_rowEnd.addValue("x_onScreenMimic", x_onScreenMimic );
 					//rt_rowEnd.addValue("y_onScreenMimic", y_onScreenMimic );
-				} //end for columns
-		*/				
-			} //end private void scanFast_fromTopLeftCorner_Yplus_inXplusOuterLoop(byte[] )
-			//------------------------------------------------------------------- 	
-			
-			
-			private void scanFast_fromBottomLeftCorner_Yminus_inXplusOuterLoop(byte[] pixels) {
-				
+				} //end for row
 			} //end private void scanFast_fromBottomLeftCorner_Yminus_inXplusOuterLoop(byte[])
 			//------------------------------------------------------------------- 	
 		
